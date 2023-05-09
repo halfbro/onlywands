@@ -1,0 +1,24 @@
+@font-face {
+    font-family: noita;
+    src: url(/noita2.ttf);
+}
+
+html {
+    background-color: black;
+    font-size: 18px;
+    font-family: 'noita';
+    image-rendering: pixelated;
+    color: white;
+}
+
+p {
+    margin: 0px;
+}
+
+.displayOnParentHover {
+    visibility: hidden;
+}
+
+*:hover > .displayOnParentHover {
+    visibility: visible;
+}

@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <link rel="stylesheet" href="/static-style.css">
+        <meta charset="UTF-8">
+        <title>Onlywands</title>
+    </head>
+
+    <body>
+        <div class="content">
+            <h1 class="content">Success!</h1>
+            <p class="content">Thanks for registering <span id="streamer-name"></span>!</p>
+            <p class="content">This is your token! Keep it a secret (from your stream):</p>
+            <div class="content" style="justify-content:center;display:flex;flex-direction:column;">
+                <input id="token" disabled value="">
+                <button onclick="copy()">Copy token</button>
+            </div>
+            <p class="content">You'll need to put it in the token.lua file in your streamer-wands mod folder</p>
+            <hr style="width:650px">
+            <p class="content">Your personal link is here: <a id="streamer-link"></a></p>
+        </div>
+
+        <script>
+         const copy = () => {
+             copyText = document.getElementById('token').value;
+             navigator.clipboard.writeText(copyText);
+         };
+         const urlParams = new Proxy(new URLSearchParams(window.location.search), {
+             get: (searchParams, prop) => searchParams.get(prop)
+         });
+         const streamerName = urlParams.streamer;
+         const token = urlParams.token;
+
+         span = document.getElementById('streamer-name');
+         txt = document.createTextNode(streamerName);
+         span.appendChild(txt);
+
+         document.getElementById('streamer-link').href = `https://wands.halfbro.xyz/streamer/${streamerName}`;
+         document.getElementById('streamer-link').textContent = `https://wands.halfbro.xyz/streamer/${streamerName}`;
+
+         document.getElementById('token').value = token;
+        </script>
+    </body>
+
+</html>

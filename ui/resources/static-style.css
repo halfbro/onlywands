@@ -1,0 +1,36 @@
+@font-face {
+    font-family: noita;
+    src: url(/noita2.ttf);
+}
+
+html {
+    background-color: black;
+    font-size: 18px;
+    font-family: 'noita';
+    image-rendering: pixelated;
+    color: white;
+}
+
+h1 {
+    margin: 30px auto 20px auto;
+}
+
+p {
+    margin: 10px auto 10px auto;
+}
+
+input {
+    color: white;
+    font-size: 1.2rem;
+    width: 100%;
+}
+
+button {
+    margin: auto;
+}
+
+.content {
+    max-width: 960px;
+    width: fit-content;
+    margin: auto;
+}
