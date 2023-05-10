@@ -11,7 +11,6 @@ let
     src = ./.;
     installPhase = ''
       mkdir -p $out/
-      ls -al ${backend}/
       cp -r ${backend}/* $out/
       cp -r ${frontend}/* $out/
     '';
@@ -21,16 +20,24 @@ let
     name = "onlywands-dockerized";
     tag = "latest";
 
-    contents = [ drv cacert ];
+    copyToRoot = buildEnv {
+      name = "image-root";
+      paths = [ drv cacert ];
+      #pathsToLink = [ "/" ];
+    };
 
     config = {
-      Cmd = [ "${drv}/backend-app" ];
-      WorkingDir = "${drv}/";
+      Cmd = [ "/backend-app" ];
+      WorkingDir = "/";
       ExposedPorts = { "8080/tcp" = { }; };
       Env = [
         "TWITCH_API_CLIENT_ID=${builtins.getEnv "TWITCH_API_CLIENT_ID"}"
         "TWITCH_API_CLIENT_SECRET=${builtins.getEnv "TWITCH_API_CLIENT_SECRET"}"
       ];
+      Volumes = {
+        "/streamers" = { };
+        "/tokens" = { };
+      };
     };
   };
 

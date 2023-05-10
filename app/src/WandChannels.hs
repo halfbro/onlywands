@@ -43,6 +43,7 @@ streamerFile username = "./streamers/" ++ username ++ ".info"
 initStreamer :: String -> IO ()
 initStreamer username = do
   B.writeFile (streamerFile username) $ encode blankStreamerInformation
+  putStrLn $ "Created streamer file for user" ++ username ++ ": " ++ streamerFile username
 
 lookupStream :: String -> IO (Maybe StreamerChannelInfo)
 lookupStream username = do

@@ -22,6 +22,7 @@ let
           "${srcdir}/${builtins.replaceStrings [ "." ] [ "/" ] module}.elm";
         extension = if outputJavaScript then "js" else "html";
       in ''
+        mkdir -p $out/static
         ${lib.concatStrings (map (module: ''
           echo "compiling ${elmfile module}"
           elm make ${elmfile module} --output $out/${module}.${extension}
@@ -30,8 +31,9 @@ let
             uglifyjs $out/${module}.${extension} --compress 'pure_funcs="F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9",pure_getters,keep_fargs=false,unsafe_comps,unsafe' \
                 | uglifyjs --mangle --output $out/${module}.min.${extension}
           ''}
+          mv $out/${module}.min.${extension} $out/static
+          rm $out/${module}.${extension}
         '') targets)}
-        mkdir -p $out/static
         cp -r resources/* $out/static
       '';
     };

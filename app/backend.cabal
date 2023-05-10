@@ -25,7 +25,7 @@ executable backend-app
     main-is:          Main.hs
 
     -- Modules included in this executable, other than Main.
-    extensions:
+    default-extensions:
         DeriveGeneric
       , OverloadedStrings
       , NumericUnderscores
@@ -40,9 +40,8 @@ executable backend-app
       , WandChannels
 
     -- LANGUAGE extensions used by modules in this package.
-    -- other-extensions:
     build-depends:
-        base ^>=4.14.3.0
+        base
       , aeson
       , base64-bytestring
       , bytestring
