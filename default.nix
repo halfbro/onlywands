@@ -23,7 +23,6 @@ let
     copyToRoot = buildEnv {
       name = "image-root";
       paths = [ drv cacert ];
-      #pathsToLink = [ "/" ];
     };
 
     config = {
