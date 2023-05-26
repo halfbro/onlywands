@@ -5,6 +5,7 @@ with (import nixpkgs config);
 let
   backend = import ./app/default.nix { };
   frontend = import ./ui/default.nix { };
+  mod = import ./mod/default.nix { };
 
   drv = stdenv.mkDerivation {
     name = "onlywands-0.1.0";
@@ -40,4 +41,4 @@ let
     };
   };
 
-in { inherit drv container; }
+in { inherit drv container mod; }
