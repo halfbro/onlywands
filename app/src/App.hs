@@ -137,11 +137,16 @@ getAccessToken authToken =
         (https "id.twitch.tv" /: "oauth2" /: "token")
         NoReqBody
         jsonResponse
-        ( "client_id" =: twitchClientId
-            <> "client_secret" =: twitchClientSecret
-            <> "code" =: authToken
-            <> "grant_type" =: ("authorization_code" :: String)
-            <> "redirect_uri" =: ("https://wands.halfbro.xyz/twitch/redirect" :: String)
+        ( "client_id"
+            =: twitchClientId
+            <> "client_secret"
+            =: twitchClientSecret
+            <> "code"
+            =: authToken
+            <> "grant_type"
+            =: ("authorization_code" :: String)
+            <> "redirect_uri"
+            =: ("https://wands.halfbro.xyz/twitch/redirect" :: String)
         )
     let body = (responseBody res :: Value)
         tokenInfo = (parseMaybe parseJSON body :: Maybe TokenInfo)
@@ -207,7 +212,8 @@ shouldAccept conn = do
     Nothing -> do
       print path
       case stripPrefix "/token/" path of
-        Nothing -> return $ Rejected "Invalid websocket path"
+        Nothing -> do
+          return $ Rejected "Invalid websocket path"
         Just token -> do
           info <- validateStreamerToken token
           case info of

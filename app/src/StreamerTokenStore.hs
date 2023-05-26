@@ -14,9 +14,9 @@ tokenFile s = "./tokens/" ++ s ++ ".token"
 
 newTokenForStreamer :: Streamer -> IO Token
 newTokenForStreamer (username, userid) = do
-  t <- randomString (StringOpts {alphabet = Base58, nrBytes = 20})
+  t <- take 16 <$> randomString (StringOpts {alphabet = Base58, nrBytes = 32})
   writeFile (tokenFile t) (userid ++ "|" ++ username)
-  putStrLn $ "Created token file for user" ++ username ++ ": " ++ tokenFile t
+  putStrLn $ "Created token file for user '" ++ username ++ "': " ++ tokenFile t
   return t
 
 getStreamerFromToken :: String -> IO (Maybe Streamer)
