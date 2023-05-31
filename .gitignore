@@ -1,4 +1,5 @@
 .env
+.direnv
 result*
 
 elm-stuff

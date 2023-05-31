@@ -1,12 +1,9 @@
 module RedirectState (initState, getRedirectState, cache) where
 
 import Data.Cache as Cache (Cache, insert, lookup, newCache)
+import qualified Data.Text as T
 import GHC.IO (unsafePerformIO)
-import System.RandomString
-  ( Alphabet (Base58),
-    StringOpts (StringOpts, alphabet, nrBytes),
-    randomString,
-  )
+import Text.StringRandom
 
 {-# NOINLINE cache #-}
 cache :: Cache () String
@@ -14,7 +11,7 @@ cache = unsafePerformIO $ newCache Nothing
 
 initState :: IO String
 initState = do
-  state <- randomString $ StringOpts {alphabet = Base58, nrBytes = 20}
+  state <- T.unpack <$> stringRandomIO "[a-zA-Z2-9]{16}"
   insert cache () state
   return state
 

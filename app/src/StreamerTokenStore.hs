@@ -1,9 +1,9 @@
 module StreamerTokenStore (newTokenForStreamer, getStreamerFromToken) where
 
 import Control.Monad (when)
-import Data.Strings (strSplit)
+import qualified Data.Text as T
 import System.Directory (doesFileExist, removeFile)
-import System.RandomString
+import Text.StringRandom
 
 type Token = String
 
@@ -46,7 +46,8 @@ newTokenForStreamer :: String -> String -> IO Token
 newTokenForStreamer username twitchId = do
   let streamer = Streamer username twitchId
   revokeTokenForStreamer streamer
-  newToken <- take 16 <$> randomString (StringOpts {alphabet = Base58, nrBytes = 32})
+  -- newToken <- take 16 <$> randomString (StringOpts {alphabet = Base58, nrBytes = 32})
+  newToken <- T.unpack <$> stringRandomIO "[a-zA-Z2-9]{16}"
   writeFile (tokenFile newToken) (twitchId ++ "|" ++ username)
   writeFile (streamerFile streamer) newToken
   putStrLn $ "Created new token for user '" ++ username ++ "'"
@@ -59,6 +60,13 @@ getStreamerFromToken t = do
   if exists
     then do
       line <- readFile path
-      let (_, username) = strSplit "|" line
+      let username = last $ parseLine line
       return $ Just username
     else return Nothing
+  where
+    parseLine l =
+      case dropWhile (== '|') l of
+        "" -> []
+        s' -> w : parseLine s''
+          where
+            (w, s'') = break (== '|') s'

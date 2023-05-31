@@ -11,9 +11,9 @@ where
 import Data.Aeson (FromJSON, ToJSON)
 import qualified Data.List as List
 import Data.Maybe (fromMaybe)
-import Data.Strings (Str (strReplace), strSplitAll)
 import GHC.Generics (Generic)
 import Noita.Types as Noita
+import System.FilePath.Posix
 
 type SpellName = String
 
@@ -39,8 +39,7 @@ instance FromJSON WandStats
 
 fromNoitaWandStats :: NoitaWandStats -> WandStats
 fromNoitaWandStats stats =
-  let fromNoitaSprite s =
-        strReplace ".png" "" $ strReplace ".xml" "" $ List.last $ strSplitAll "/" s
+  let fromNoitaSprite = takeBaseName
    in WandStats
         { sprite = fromNoitaSprite $ Noita.sprite stats,
           rechargeTime = Noita.reload_time stats,

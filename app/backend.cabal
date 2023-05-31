@@ -50,17 +50,17 @@ executable backend-app
       , containers
       , data-default
       , directory
+      , filepath
       , focus
       , hashable
       , http-types
       , lens
       , mtl
       , network-uri
-      , random-string
+      , string-random
       , req
       , stm
       , stm-containers
-      , strings
       , text
       , time
       , unagi-chan
