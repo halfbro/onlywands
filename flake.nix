@@ -7,18 +7,17 @@
 
     backend.url = "path:./app";
     frontend.url = "path:./ui";
-    #mod.url = "path:./mod";
-    #mod.flake = false;
+    mod.url = "path:./mod";
   };
 
-  outputs = { self, nixpkgs, flake-utils, backend, frontend }:
+  outputs = { self, nixpkgs, flake-utils, backend, frontend, mod }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
         backendDrv = backend.packages.${system}.backend;
         frontendDrv = frontend.packages.${system}.frontend;
       in {
-        #packages.mod = mod;
+        packages.mod = mod.packages.${system}.mod;
 
         packages.webapp = pkgs.stdenv.mkDerivation {
           name = "onlywands-0.1.1";
@@ -58,6 +57,7 @@
         };
 
         packages.default = self.packages.${system}.webapp;
+        defaultPackage = self.packages.${system}.default;
 
         devShells.default = pkgs.mkShell {
           packages = [ pkgs.terraform ];
@@ -65,6 +65,7 @@
             source .env
           '';
         };
+        devShell = self.devShells.${system}.default;
 
       });
 }
