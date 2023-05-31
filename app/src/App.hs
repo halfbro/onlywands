@@ -84,7 +84,7 @@ appHttp req send =
                     case streamerInfo of
                       Nothing -> send fail500
                       Just (username, userId) -> do
-                        token <- newTokenForStreamer (username, userId)
+                        token <- newTokenForStreamer username userId
                         initStreamer username
                         let uri =
                               parseURI $
@@ -193,7 +193,7 @@ data User
   | Viewer ReceiveChannel StreamerInformation
   | Rejected String
 
-validateStreamerToken :: S.ByteString -> IO (Maybe (String, String))
+validateStreamerToken :: S.ByteString -> IO (Maybe String)
 validateStreamerToken = getStreamerFromToken . S.unpack
 
 shouldAccept :: WS.PendingConnection -> IO User
@@ -218,7 +218,7 @@ shouldAccept conn = do
           info <- validateStreamerToken token
           case info of
             Nothing -> return $ Rejected "Invalid token"
-            Just (_streamerId, streamerName) -> do
+            Just streamerName -> do
               writeChannel <- getBroadcastChannel streamerName
               case writeChannel of
                 Nothing -> return $ Rejected "Error during registration"
