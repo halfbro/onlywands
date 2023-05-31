@@ -56,7 +56,7 @@
           };
         };
 
-        packages.default = self.packages.${system}.webapp;
+        packages.default = self.packages.${system}.webapp-container;
         defaultPackage = self.packages.${system}.default;
 
         devShells.default = pkgs.mkShell {
