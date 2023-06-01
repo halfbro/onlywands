@@ -44,12 +44,10 @@
             WorkingDir = "/";
             ExposedPorts = { "8080/tcp" = { }; };
             Env = [
-              "TWITCH_API_CLIENT_ID=${builtins.getEnv "TWITCH_API_CLIENT_ID"}"
-              "TWITCH_API_CLIENT_SECRET=${
-                builtins.getEnv "TWITCH_API_CLIENT_SECRET"
-              }"
+              "TWITCH_API_CLIENT_ID="
+              "TWITCH_API_CLIENT_SECRET="
               "ONLYWANDS_PORT=8080"
-              "ONLYWANDS_HOST=${builtins.getEnv "ONLYWANDS_HOST"}"
+              "ONLYWANDS_HOST="
             ];
             Volumes = {
               "/streamers" = { };

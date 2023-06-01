@@ -35,8 +35,8 @@
          txt = document.createTextNode(streamerName);
          span.appendChild(txt);
 
-         document.getElementById('streamer-link').href = `https://wands.halfbro.xyz/streamer/${streamerName}`;
-         document.getElementById('streamer-link').textContent = `https://wands.halfbro.xyz/streamer/${streamerName}`;
+         document.getElementById('streamer-link').href = `/streamer/${streamerName}`;
+         document.getElementById('streamer-link').textContent = `${location.host}/streamer/${streamerName}`;
 
          document.getElementById('token').value = token;
         </script>

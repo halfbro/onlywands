@@ -8,7 +8,7 @@ import Html.Styled.Attributes exposing (class, href, src)
 import Json.Decode exposing (Error, decodeString, decodeValue, dict, string)
 import List exposing (length)
 import Result exposing (withDefault)
-import Round as Round
+import Round
 import String exposing (fromInt)
 import Types exposing (..)
 
@@ -111,7 +111,7 @@ view model =
         , styled span
             [ Css.textAlign Css.center ]
             []
-            [ a [ href "https://wands.halfbro.xyz" ] [ text "Add to your stream" ]
+            [ a [ href "/" ] [ text "Add to your stream" ]
             ]
         ]
 

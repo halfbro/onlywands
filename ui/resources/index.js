@@ -2,7 +2,7 @@ const streamerName = window.location.pathname.split('/').at(2);
 
 document.title = `${streamerName}'s Wands`;
 
-const ws = new WebSocket(`wss://wands.halfbro.xyz/updates/${streamerName}`);
+const ws = new WebSocket(`wss://${location.host}/updates/${streamerName}`);
 
 app = Elm.StreamerPage.init({
     node: document.getElementById('elm'),
