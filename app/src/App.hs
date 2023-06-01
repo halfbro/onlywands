@@ -65,7 +65,7 @@ app env =
    in websocketsOr websocketSettings appWs (appHttp env)
 
 appHttp :: AppEnvironment -> Application
-appHttp env@(AppEnvironment {twitchClientId}) req send =
+appHttp env@(AppEnvironment {onlywandsHost, twitchClientId}) req send =
   let staticFileServer = staticApp $ defaultWebAppSettings "static"
       fail404 = responseBuilder status404 [] "Not found"
       fail500 = responseBuilder status500 [] "Internal error"
@@ -98,7 +98,8 @@ appHttp env@(AppEnvironment {twitchClientId}) req send =
                         initStreamer username
                         let uri =
                               parseURI $
-                                "https://wands.halfbro.xyz/success.html?streamer="
+                                onlywandsHost
+                                  ++ "/success.html?streamer="
                                   ++ username
                                   ++ "&token="
                                   ++ token
@@ -113,7 +114,9 @@ appHttp env@(AppEnvironment {twitchClientId}) req send =
                   ++ "?client_id="
                   ++ twitchClientId
                   ++ "&force_verity=true"
-                  ++ "&redirect_uri=https://wands.halfbro.xyz/twitch/redirect"
+                  ++ "&redirect_uri="
+                  ++ onlywandsHost
+                  ++ "/twitch/redirect"
                   ++ "&response_type=code"
                   ++ "&scope="
                   ++ "&state="
@@ -139,7 +142,7 @@ newtype TokenInfo = TokenInfo
 instance FromJSON TokenInfo
 
 getAccessToken :: AppEnvironment -> Text -> IO (Maybe String)
-getAccessToken (AppEnvironment {twitchClientId, twitchClientSecret}) authToken =
+getAccessToken (AppEnvironment {onlywandsHost, twitchClientId, twitchClientSecret}) authToken =
   runReq defaultHttpConfig $ do
     res <-
       HTTP.req
@@ -156,7 +159,7 @@ getAccessToken (AppEnvironment {twitchClientId, twitchClientSecret}) authToken =
             <> "grant_type"
             =: ("authorization_code" :: String)
             <> "redirect_uri"
-            =: ("https://wands.halfbro.xyz/twitch/redirect" :: String)
+            =: (onlywandsHost ++ "/twitch/redirect" :: String)
         )
     let body = (responseBody res :: Value)
         tokenInfo = (parseMaybe parseJSON body :: Maybe TokenInfo)
