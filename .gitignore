@@ -2,4 +2,6 @@
 .direnv
 result*
 
+dist-newstyle
+
 elm-stuff

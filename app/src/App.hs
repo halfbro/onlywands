@@ -1,23 +1,23 @@
-{-# LANGUAGE NumericUnderscores #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ImportQualifiedPost #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module App (runApp, twitchClientId) where
 
+import Control.Exception (assert)
 import Data.Aeson (FromJSON (parseJSON), decode, encode)
 import Data.Aeson.Types (Value, parseMaybe)
 import Data.ByteString (isPrefixOf, stripPrefix)
 import Data.ByteString.Char8 (unpack)
-import qualified Data.ByteString.Char8 as S
+import Data.ByteString.Char8 qualified as S
 import Data.ByteString.Lazy as L (ByteString, fromStrict, toStrict)
 import Data.List (find)
 import Data.Text (Text)
-import qualified Data.Text as T
+import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8)
 import GHC.Generics
-import qualified GHC.IO
 import Network.HTTP.Req (GET (GET), MonadHttp, NoReqBody (NoReqBody), POST (POST), defaultHttpConfig, https, jsonResponse, oAuth2Bearer, responseBody, runReq, (/:), (=:))
-import qualified Network.HTTP.Req as HTTP
+import Network.HTTP.Req qualified as HTTP
 import Network.HTTP.Types (found302, status200, status401, status404, status500)
 import Network.URI (parseURI)
 import Network.Wai (Application, pathInfo, queryString, responseBuilder, responseFile)
@@ -26,36 +26,46 @@ import Network.Wai.Handler.Warp (run)
 import Network.Wai.Handler.WebSockets (websocketsOr)
 import Network.Wai.Util (redirect)
 import Network.WebSockets (defaultConnectionOptions, sendTextData, withPingThread)
-import qualified Network.WebSockets as WS
+import Network.WebSockets qualified as WS
 import Noita.Types (NoitaUpdate (NoitaUpdate))
-import qualified RedirectState
+import RedirectState qualified
 import StreamerTokenStore (getStreamerFromToken, newTokenForStreamer)
-import qualified System.Environment
+import System.Environment (getEnv)
 import System.Timeout (timeout)
 import Types (StreamerInformation, blankStreamerInformation, fromNoitaUpdate)
 import Util (toBytestring)
 import WandChannels (BroadcastChannel, ReceiveChannel, broadcastUpdate, getBroadcastChannel, getLastUpdate, getReceiveChannel, initStreamer, receiveUpdates)
 
--- On Request:
--- 1. If no stream exists yet, make OnlyWands stream
--- 2. Set up stream to send broadcast updates to Twitch
+data AppEnvironment = AppEnvironment
+  { onlywandsPort :: Int,
+    onlywandsHost :: String,
+    twitchClientId :: String,
+    twitchClientSecret :: String
+  }
+
+assertNonEmpty :: String -> String
+assertNonEmpty s = assert (not $ isEmpty s) s
+  where
+    isEmpty "" = True
+    isEmpty _ = False
 
 runApp :: IO ()
-runApp =
-  run 8080 app
+runApp = do
+  onlywandsPort <- read . assertNonEmpty <$> getEnv "ONLYWANDS_PORT"
+  onlywandsHost <- assertNonEmpty <$> getEnv "ONLYWANDS_HOST"
+  twitchClientId <- assertNonEmpty <$> getEnv "TWITCH_API_CLIENT_ID"
+  twitchClientSecret <- assertNonEmpty <$> getEnv "TWITCH_API_CLIENT_SECRET"
 
-app :: Application
-app =
+  run onlywandsPort $ app (AppEnvironment {onlywandsPort, onlywandsHost, twitchClientId, twitchClientSecret})
+
+app :: AppEnvironment -> Application
+app env =
   let websocketSettings =
         defaultConnectionOptions
-   in websocketsOr websocketSettings appWs appHttp
+   in websocketsOr websocketSettings appWs (appHttp env)
 
-twitchClientId = GHC.IO.unsafePerformIO $ System.Environment.getEnv "TWITCH_API_CLIENT_ID"
-
-twitchClientSecret = GHC.IO.unsafePerformIO $ System.Environment.getEnv "TWITCH_API_CLIENT_SECRET"
-
-appHttp :: Application
-appHttp req send =
+appHttp :: AppEnvironment -> Application
+appHttp env@(AppEnvironment {twitchClientId}) req send =
   let staticFileServer = staticApp $ defaultWebAppSettings "static"
       fail404 = responseBuilder status404 [] "Not found"
       fail500 = responseBuilder status500 [] "Internal error"
@@ -76,7 +86,7 @@ appHttp req send =
             then case authCode of
               Nothing -> send $ responseBuilder status401 [] "Failed to get a code from Twitch"
               Just authCode -> do
-                accessToken <- getAccessToken (decodeUtf8 authCode)
+                accessToken <- getAccessToken env (decodeUtf8 authCode)
                 case accessToken of
                   Nothing -> send $ responseBuilder status401 [] "Failed to get a code from Twitch"
                   Just token -> do
@@ -128,8 +138,8 @@ newtype TokenInfo = TokenInfo
 
 instance FromJSON TokenInfo
 
-getAccessToken :: Text -> IO (Maybe String)
-getAccessToken authToken =
+getAccessToken :: AppEnvironment -> Text -> IO (Maybe String)
+getAccessToken (AppEnvironment {twitchClientId, twitchClientSecret}) authToken =
   runReq defaultHttpConfig $ do
     res <-
       HTTP.req
