@@ -29,6 +29,7 @@ import Network.WebSockets (defaultConnectionOptions, sendTextData, withPingThrea
 import Network.WebSockets qualified as WS
 import Noita.Types (NoitaUpdate (NoitaUpdate))
 import RedirectState qualified
+import Secrets
 import StreamerTokenStore (getStreamerFromToken, newTokenForStreamer)
 import System.Environment (getEnv)
 import System.Timeout (timeout)
@@ -53,8 +54,8 @@ runApp :: IO ()
 runApp = do
   onlywandsPort <- read . assertNonEmpty <$> getEnv "ONLYWANDS_PORT"
   onlywandsHost <- assertNonEmpty <$> getEnv "ONLYWANDS_HOST"
-  twitchClientId <- assertNonEmpty <$> getEnv "TWITCH_API_CLIENT_ID"
-  twitchClientSecret <- assertNonEmpty <$> getEnv "TWITCH_API_CLIENT_SECRET"
+  twitchClientId <- getTwitchClientId
+  twitchClientSecret <- getTwitchClientSecret
 
   run onlywandsPort $ app (AppEnvironment {onlywandsPort, onlywandsHost, twitchClientId, twitchClientSecret})
 

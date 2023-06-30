@@ -31,8 +31,9 @@
         };
 
         packages.webapp-container = pkgs.dockerTools.buildImage {
-          name = "onlywands-dockerized";
-          tag = "latest";
+          name =
+            "us-central1-docker.pkg.dev/onlywands/onlywands-docker-repository/onlywands-dockerized";
+          tag = "0.1.2";
 
           copyToRoot = pkgs.buildEnv {
             name = "image-root";

@@ -38,6 +38,7 @@ executable backend-app
       , Types
       , Util
       , WandChannels
+      , Secrets
 
     -- LANGUAGE extensions used by modules in this package.
     build-depends:
